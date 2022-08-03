@@ -33,7 +33,7 @@
 #include "_hypre_struct_mv.h"
 
 #ifdef HYPRE_SEQUENTIAL
-#ifndef amps_CommWorld
-#define amps_CommWorld 0
+#ifndef MPI_COMM_WORLD
+#define MPI_COMM_WORLD 0
 #endif
 #endif

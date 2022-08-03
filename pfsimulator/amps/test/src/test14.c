@@ -31,11 +31,8 @@
  *
  */
 
-#include "amps.h"
-#include "amps_test.h"
-
 #include <stdio.h>
-#include <string.h>
+#include "amps.h"
 
 char *string = "ATestString";
 
@@ -48,6 +45,8 @@ char *argv[];
 
   int num;
   int me;
+
+  int i;
 
   char *recvd_string = NULL;
   int length;
@@ -97,12 +96,17 @@ char *argv[];
         amps_Printf("recvd %s != %s\n", recvd_string, string);
         result = 1;
       }
+      else
+      {
+        amps_Printf("Success\n");
+        result = 0;
+      }
     }
   }
   amps_FreeInvoice(invoice);
 
   amps_Finalize();
 
-  return amps_check_result(result);
+  return result;
 }
 

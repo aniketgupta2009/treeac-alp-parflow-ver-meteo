@@ -1,2 +1,0 @@
--r requirements.txt
-imageio>=2.9.0

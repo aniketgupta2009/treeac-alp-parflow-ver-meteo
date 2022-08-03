@@ -46,7 +46,6 @@ void ReadPFBinary_Subvector(
 
   int nx_v = SubvectorNX(subvector);
   int ny_v = SubvectorNY(subvector);
-  int nz_v = SubvectorNZ(subvector);
 
   int i, j, k, ai;
   double         *data;

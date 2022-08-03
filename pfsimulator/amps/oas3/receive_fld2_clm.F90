@@ -15,9 +15,6 @@ SUBROUTINE receive_fld2_clm(evap_trans,topo,ix,iy,nx,ny,nz,nx_f,ny_f,pstep)
 ! Version    Date       Name
 ! ---------- ---------- ----
 ! 1.00       2011/10/19 Prabhakar Shrestha
-! 1.00       2011/11/17 P. Shrestha 
-! Bug fix for masked coupling
-!
 ! Usage of prism libraries
 ! prism_abort_proto
 !
@@ -55,8 +52,7 @@ INTEGER                            :: isecs                              ! Parfl
 INTEGER                            :: j_incr, k_incr                     ! convert 1D vector to 3D i,j,k array
 INTEGER, ALLOCATABLE               :: counter(:,:),                     &!
                                       topo_mask(:,:)                     ! Mask for active parflow cells
-!CPS now allocated in oas_pfl_define
-!REAL(KIND=8), ALLOCATABLE          :: frcv(:,:,:)                        ! temporary array
+REAL(KIND=8), ALLOCATABLE          :: frcv(:,:,:)                        ! temporary array
 
 INTEGER                            :: status, ib, pflncid, dimids(4),   &!
                                       pflvarid, cplfreq, cplstop,npes    ! Debug netcdf output
@@ -73,15 +69,14 @@ CHARACTER(len=19)                  :: foupname
  j_incr = nx_f
  k_incr = nx_f*ny_f
 
-!CPS
-! ALLOCATE ( frcv(nx,ny,nlevsoil), stat=ierror)
-! IF (ierror /= 0)  CALL prism_abort_proto( comp_id, 'receive_fld_2clm', 'Failure in allocating fsnd' )
+
+ ALLOCATE ( frcv(nx,ny,nlevsoil), stat=ierror)
+ IF (ierror /= 0)  CALL prism_abort_proto( comp_id, 'receive_fld_2clm', 'Failure in allocating fsnd' )
  ALLOCATE( topo_mask(nx,ny), stat=ierror)
  IF (ierror /= 0)  CALL prism_abort_proto( comp_id, 'receive_fld_2clm', 'Failure in allocating topo_mask' )
  ALLOCATE( counter(nx,ny), stat=ierror)
  IF (ierror /= 0)  CALL prism_abort_proto( comp_id, 'receive_fld_2clm', 'Failure in allocating counter' )
-
- topo_mask = 0                  !CPS initialize 
+ 
 ! Create the masking vector
  DO i = 1, nx
    DO j = 1, ny
@@ -101,14 +96,11 @@ CHARACTER(len=19)                  :: foupname
    IF( trcv(k)%laction )  CALL oas_pfl_rcv( k, isecs, frcv(:,:,k),nx, ny, info )
  ENDDO
 !
- evap_trans = 0.   !CPS initialize for masking
  DO i = 1, nx
    DO j = 1, ny
      DO k = 1, nlevsoil 
-       IF (topo_mask(i,j) .gt. 0) THEN                    !CPS mask bug fix
-         l = 1+i + j_incr*(j) + k_incr*(topo_mask(i,j)-(k-1))  !
-         evap_trans(l) = frcv(i,j,k)
-       END IF
+       l = 1+i + j_incr*(j) + k_incr*(topo_mask(i,j)-(k-1))  !
+       evap_trans(l) = frcv(i,j,k)
      ENDDO
    ENDDO
  ENDDO
@@ -149,7 +141,7 @@ CHARACTER(len=19)                  :: foupname
 ! CALL MPI_Barrier(localcomm, ierror)
 
 
-!CPS  DEALLOCATE(frcv)
+ DEALLOCATE(frcv)
  DEALLOCATE(counter)
  DEALLOCATE(topo_mask)
 !------------------------------------------------------------------------------

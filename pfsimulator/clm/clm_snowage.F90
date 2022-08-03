@@ -57,8 +57,8 @@ subroutine clm_snowage (clm)
 
   else                               ! Away from Antarctica 
 
-     age3  = 0.3
-     arg   = 5.e3*(1./tfrz-1./clm%t_grnd)
+     age3  = 0.3 !AG 0.3
+     arg   = 5.e3*(1./tfrz-1./clm%t_grnd) !AG 5.e3
      arg2  = min(dble(0.),dble(10.)*arg)
      age2  = exp(arg2)
      age1  = exp(arg)

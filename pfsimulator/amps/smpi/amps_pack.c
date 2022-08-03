@@ -26,11 +26,11 @@
  *  USA
  **********************************************************************EHEADER*/
 
-#include "amps.h"
-
 #include <string.h>
 #include <stdarg.h>
-#include <limits.h>
+
+#include "amps.h"
+
 
 int amps_pack(comm, inv, buffer)
 amps_Comm comm;
@@ -91,14 +91,6 @@ char **buffer;
 
     switch (ptr->type)
     {
-      case AMPS_INVOICE_BYTE_CTYPE:
-
-        cur_pos += AMPS_CALL_BYTE_ALIGN(comm, NULL, cur_pos, len, stride);
-        if (!ptr->ignore)
-          AMPS_CALL_BYTE_OUT(comm, data, cur_pos, len, stride);
-        cur_pos += AMPS_CALL_BYTE_SIZEOF(comm, cur_pos, NULL, len, stride);
-        break;
-
       case AMPS_INVOICE_CHAR_CTYPE:
 
         cur_pos += AMPS_CALL_CHAR_ALIGN(comm, NULL, cur_pos, len, stride);
@@ -227,18 +219,10 @@ amps_Invoice inv;
 
     switch (ptr->type)
     {
-      case AMPS_INVOICE_BYTE_CTYPE:
-        if (!ptr->ignore)
-        {
-          MPI_Type_vector(len, 1, stride, MPI_BYTE,
-                          &mpi_types[element]);
-        }
-        break;
-
       case AMPS_INVOICE_CHAR_CTYPE:
         if (!ptr->ignore)
         {
-          MPI_Type_vector(len, 1, stride, MPI_CHAR,
+          MPI_Type_vector(len, 1, stride, MPI_BYTE,
                           &mpi_types[element]);
         }
         break;
@@ -300,13 +284,8 @@ amps_Invoice inv;
 
         switch (ptr->type - AMPS_INVOICE_LAST_CTYPE)
         {
-	  case AMPS_INVOICE_BYTE_CTYPE:
-            MPI_Type_vector(len, 1, stride, MPI_BYTE, base_type);
-            element_size = sizeof(char);
-            break;
-
           case AMPS_INVOICE_CHAR_CTYPE:
-            MPI_Type_vector(len, 1, stride, MPI_CHAR, base_type);
+            MPI_Type_vector(len, 1, stride, MPI_BYTE, base_type);
             element_size = sizeof(char);
             break;
 
@@ -334,9 +313,6 @@ amps_Invoice inv;
             MPI_Type_vector(len, 1, stride, MPI_DOUBLE, base_type);
             element_size = sizeof(double);
             break;
-	  default:
-	    amps_Error("amps_pack", INVALID_INVOICE, "Invalid invoice type", HALT);
-	    element_size = INT_MIN;
         }
 
         base_size = element_size * (len + (len - 1) * (stride - 1));
@@ -345,7 +321,7 @@ amps_Invoice inv;
         {
           if (i == dim - 1)
           {
-            MPI_Type_create_hvector(ptr->ptr_len[i], 1,
+            MPI_Type_hvector(ptr->ptr_len[i], 1,
                              base_size +
                              (ptr->ptr_stride[i] - 1) * element_size,
                              *base_type, &mpi_types[element]);
@@ -356,7 +332,7 @@ amps_Invoice inv;
           }
           else
           {
-            MPI_Type_create_hvector(ptr->ptr_len[i], 1,
+            MPI_Type_hvector(ptr->ptr_len[i], 1,
                              base_size +
                              (ptr->ptr_stride[i] - 1) * element_size,
                              *base_type, new_type);
@@ -380,14 +356,14 @@ amps_Invoice inv;
         break;
     }
 
-    MPI_Get_address(data, &mpi_displacements[element]);
+    MPI_Address(data, &mpi_displacements[element]);
 
     mpi_block_len[element] = 1;
     element++;
     ptr = ptr->next;
   }
 
-  MPI_Type_create_struct(inv->num,
+  MPI_Type_struct(inv->num,
                   mpi_block_len,
                   mpi_displacements,
                   mpi_types,

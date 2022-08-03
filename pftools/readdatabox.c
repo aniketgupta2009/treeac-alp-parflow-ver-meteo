@@ -76,6 +76,7 @@ Databox         *ReadSilo(char *filename, double default_value)
   int err = -1;
 
   DBfile         *db;
+  double epsi = 1.0E-16;
   char *current_path = NULL;
   char *path = NULL;
   char *slash = strchr(filename, '/');
@@ -311,8 +312,6 @@ Databox         *ReadSilo(char *filename, double default_value)
 
   return v;
 #else
-  printf("Error: Silo was not used in build\n");
-  return NULL;
 #endif
 }
 

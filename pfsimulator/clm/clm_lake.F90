@@ -210,7 +210,7 @@ subroutine clm_lake (clm)
 
   ! surface emissivity
 
-  emg = 0.97
+  emg = 0.97	!AG 0.97
 
   ! ========================================================================
   !*[2] SURFACE TEMPERATURE and FLUXES

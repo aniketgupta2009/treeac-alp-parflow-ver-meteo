@@ -30,7 +30,9 @@
 * Operator induced prolongation for MGSemi module
 *
 *****************************************************************************/
+
 #include "parflow.h"
+
 
 /*--------------------------------------------------------------------------
  * MGSemiProlong
@@ -243,3 +245,4 @@ ComputePkg   *NewMGSemiProlongComputePkg(
 
   return compute_pkg;
 }
+

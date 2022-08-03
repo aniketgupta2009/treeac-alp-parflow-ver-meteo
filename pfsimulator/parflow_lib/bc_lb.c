@@ -46,6 +46,7 @@ void LBInitializeBC(
   /* Lattice variables */
   Grid  *grid = (lattice->grid);
   Vector *pressure = (lattice->pressure);
+  Vector *perm = (lattice->perm);
   CharVector *cellType = (lattice->cellType);
   double time = (lattice->t);
 
@@ -64,9 +65,11 @@ void LBInitializeBC(
   Subgrid   *subgrid;
   int nx, ny, nz;
   int ix, iy, iz;
+  int nx_v, ny_v, nz_v;
 
   /* Indices and counters */
   int num_patches;
+  int num_phases;
   int ipatch, is, i, j, k, ival;
   int cycle_number, interval_number;
   int r;
@@ -74,6 +77,8 @@ void LBInitializeBC(
   /* Physical variables and coefficients */
   Subvector *sub_p;
   double    *pp;
+  Subvector *sub_perm;
+  double    *permp;
   Subcharvector *sub_cellType;
   char      *cellTypep;
   double rho_g;
@@ -87,6 +92,7 @@ void LBInitializeBC(
   rho_g = ProblemGravity(problem) * RHO;
   num_patches = BCPressureDataNumPatches(bc_pressure_data);
   gr_domain = ProblemDataGrDomain(problem_data);
+  num_phases = BCPressureDataNumPhases(bc_pressure_data);
   if (num_patches > 0)
   {
     time_cycle_data = BCPressureDataTimeCycleData(bc_pressure_data);
@@ -125,6 +131,7 @@ void LBInitializeBC(
             /* subgrid = GridSubgrid(grid, is); */
             subgrid = SubgridArraySubgrid(subgrids, is);
             sub_p = VectorSubvector(pressure, is);
+            sub_perm = VectorSubvector(perm, is);
             sub_cellType = CharVectorSubcharvector(cellType, is);
 
             nx = SubgridNX(subgrid);
@@ -139,7 +146,12 @@ void LBInitializeBC(
             r = SubgridRX(subgrid);
 
             pp = SubvectorData(sub_p);
+            permp = SubvectorData(sub_perm);
             cellTypep = SubcharvectorData(sub_cellType);
+
+            nx_v = SubvectorNX(sub_p);
+            ny_v = SubvectorNY(sub_p);
+            nz_v = SubvectorNZ(sub_p);
 
             values[ipatch][is] = patch_values;
 
@@ -180,6 +192,7 @@ void LBInitializeBC(
             /* subgrid = GridSubgrid(grid, is); */
             subgrid = SubgridArraySubgrid(subgrids, is);
             sub_p = VectorSubvector(pressure, is);
+            sub_perm = VectorSubvector(perm, is);
             sub_cellType = CharVectorSubcharvector(cellType, is);
 
             nx = SubgridNX(subgrid);
@@ -194,7 +207,12 @@ void LBInitializeBC(
             r = SubgridRX(subgrid);
 
             pp = SubvectorData(sub_p);
+            permp = SubvectorData(sub_perm);
             cellTypep = SubcharvectorData(sub_cellType);
+
+            nx_v = SubvectorNX(sub_p);
+            ny_v = SubvectorNY(sub_p);
+            nz_v = SubvectorNZ(sub_p);
 
             values[ipatch][is] = patch_values;
 
@@ -260,6 +278,7 @@ void LBInitializeBC(
             /* subgrid = GridSubgrid(grid, is); */
             subgrid = SubgridArraySubgrid(subgrids, is);
             sub_p = VectorSubvector(pressure, is);
+            sub_perm = VectorSubvector(perm, is);
             sub_cellType = CharVectorSubcharvector(cellType, is);
 
             nx = SubgridNX(subgrid);
@@ -274,7 +293,12 @@ void LBInitializeBC(
             r = SubgridRX(subgrid);
 
             pp = SubvectorData(sub_p);
+            permp = SubvectorData(sub_perm);
             cellTypep = SubcharvectorData(sub_cellType);
+
+            nx_v = SubvectorNX(sub_p);
+            ny_v = SubvectorNY(sub_p);
+            nz_v = SubvectorNZ(sub_p);
 
             values[ipatch][is] = patch_values;
 

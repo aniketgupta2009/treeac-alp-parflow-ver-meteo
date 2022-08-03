@@ -30,11 +30,8 @@
  * to all the nodes
  */
 
-#include "amps.h"
-#include "amps_test.h"
-
 #include <stdio.h>
-#include <string.h>
+#include "amps.h"
 
 char *string = "ATestString";
 
@@ -104,6 +101,6 @@ char *argv[];
 
   amps_Finalize();
 
-  return amps_check_result(result);
+  return result;
 }
 

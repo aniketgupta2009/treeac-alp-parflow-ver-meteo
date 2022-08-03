@@ -99,6 +99,7 @@ void RichardsBCInternal(
   double           *pp;
   double           *internal_bc_conditions = NULL;
 
+  double dx, dy, dz;
   double value;
 
   int ix, iy, iz;
@@ -208,6 +209,10 @@ void RichardsBCInternal(
         nx = SubgridNX(subgrid_ind);
         ny = SubgridNY(subgrid_ind);
         nz = SubgridNZ(subgrid_ind);
+
+        dx = SubgridDX(subgrid_ind);
+        dy = SubgridDY(subgrid_ind);
+        dz = SubgridDZ(subgrid_ind);
 
         if (fcn == CALCFCN)
         {

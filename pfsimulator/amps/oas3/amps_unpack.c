@@ -31,11 +31,6 @@
 
 #include "amps.h"
 
-#if MPI_VERSION < 2
-#define MPI_Get_address(location, address) MPI_Address((location), (address))
-#define MPI_Type_create_hvector(count, blocklength, stride, oldtype, newtype) MPI_Type_hvector((count), (blocklength), (stride), (oldtype), (newtype))
-#define MPI_Type_create_struct(count, array_of_blocklengths, array_of_displacements, array_of_types, newtype) MPI_Type_struct((count), (array_of_blocklengths), (array_of_displacements), (array_of_types), (newtype))
-#endif
 
 int amps_unpack(
                 amps_Comm    comm,
@@ -87,37 +82,6 @@ int amps_unpack(
 
     switch (ptr->type)
     {
-      case AMPS_INVOICE_BYTE_CTYPE:
-        if (!ptr->ignore)
-        {
-          if (ptr->data_type == AMPS_INVOICE_POINTER)
-          {
-            *((void**)(ptr->data)) = malloc(sizeof(char) *
-                                            (size_t)(len * stride));
-            malloced = TRUE;
-
-            MPI_Type_vector(len, 1, stride, MPI_BYTE, &mpi_type);
-
-            MPI_Type_commit(&mpi_type);
-
-            MPI_Unpack(buffer, buf_size, &position,
-                       *((void**)(ptr->data)), 1, mpi_type, comm);
-
-            MPI_Type_free(&mpi_type);
-          }
-          else
-          {
-            MPI_Type_vector(len, 1, stride, MPI_BYTE, &mpi_type);
-
-            MPI_Type_commit(&mpi_type);
-            MPI_Unpack(buffer, buf_size, &position,
-                       ptr->data, 1, mpi_type, comm);
-            MPI_Type_free(&mpi_type);
-          }
-        }
-        break;
-
-	
       case AMPS_INVOICE_CHAR_CTYPE:
         if (!ptr->ignore)
         {
@@ -127,7 +91,7 @@ int amps_unpack(
                                             (size_t)(len * stride));
             malloced = TRUE;
 
-            MPI_Type_vector(len, 1, stride, MPI_CHAR, &mpi_type);
+            MPI_Type_vector(len, 1, stride, MPI_BYTE, &mpi_type);
 
             MPI_Type_commit(&mpi_type);
 
@@ -138,7 +102,7 @@ int amps_unpack(
           }
           else
           {
-            MPI_Type_vector(len, 1, stride, MPI_CHAR, &mpi_type);
+            MPI_Type_vector(len, 1, stride, MPI_BYTE, &mpi_type);
 
             MPI_Type_commit(&mpi_type);
             MPI_Unpack(buffer, buf_size, &position,
@@ -310,18 +274,10 @@ int amps_unpack(
 
         switch (ptr->type - AMPS_INVOICE_LAST_CTYPE)
         {
-	  case AMPS_INVOICE_BYTE_CTYPE:
-	                if (!ptr->ignore)
-            {
-              MPI_Type_vector(len, 1, stride, MPI_BYTE, base_type);
-              element_size = sizeof(char);
-            }
-            break;
-
           case AMPS_INVOICE_CHAR_CTYPE:
             if (!ptr->ignore)
             {
-              MPI_Type_vector(len, 1, stride, MPI_CHAR, base_type);
+              MPI_Type_vector(len, 1, stride, MPI_BYTE, base_type);
               element_size = sizeof(char);
             }
             break;
@@ -371,10 +327,10 @@ int amps_unpack(
 
         for (i = 1; i < dim; i++)
         {
-          MPI_Type_create_hvector(ptr->ptr_len[i], 1,
-                                  base_size +
-                                  (ptr->ptr_stride[i] - 1) * element_size,
-                                  *base_type, new_type);
+          MPI_Type_hvector(ptr->ptr_len[i], 1,
+                           base_size +
+                           (ptr->ptr_stride[i] - 1) * element_size,
+                           *base_type, new_type);
 
           base_size = base_size * ptr->ptr_len[i]
                       + (ptr->ptr_stride[i] - 1) * (ptr->ptr_len[i] - 1) * element_size;

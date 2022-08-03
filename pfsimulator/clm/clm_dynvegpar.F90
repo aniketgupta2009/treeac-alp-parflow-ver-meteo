@@ -58,8 +58,12 @@ subroutine clm_dynvegpar (clm)
   fb = 0.1*clm%snowdp/clm%z0m
   fb = fb/(1.+fb)
 
-  clm%elai = clm%tlai*(1.-fb)
-  clm%esai = clm%tsai*(1.-fb)
+! 
+!  clm%elai = clm%tlai*(1.-fb) 
+!  clm%esai = clm%tsai*(1.-fb)
+
+!  if (clm%elai < 0.1) clm%elai = 0._r8 !BH
+!  if (clm%esai < 0.1) clm%esai = 0._r8 !BH
 
   if (clm%elai < 0.05) clm%elai = 0._r8
   if (clm%esai < 0.05) clm%esai = 0._r8
@@ -74,6 +78,12 @@ subroutine clm_dynvegpar (clm)
   
 ! Fraction of soil covered by snow
 
-  clm%frac_sno = clm%snowdp/(10.*clm%zlnd + clm%snowdp)  
+  clm%frac_sno = clm%snowdp/(10.*clm%zlnd + clm%snowdp)
+!AR
+  if (clm%snowdp > 0) then
+     clm%frac_sno = 1
+  else
+     clm%frac_sno = 0
+  endif
 
 end subroutine clm_dynvegpar

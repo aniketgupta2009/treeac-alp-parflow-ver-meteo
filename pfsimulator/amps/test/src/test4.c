@@ -26,12 +26,8 @@
  *  USA
  **********************************************************************EHEADER*/
 
-
-#include "amps.h"
-#include "amps_test.h"
-
 #include <stdio.h>
-#include <string.h>
+#include "amps.h"
 
 static char *string = "ATestString";
 
@@ -41,6 +37,7 @@ char *argv[];
 {
   amps_Invoice invoice;
 
+  int num;
   int me;
 
   int loop;
@@ -62,6 +59,8 @@ char *argv[];
   loop = atoi(argv[1]);
   source = 0;
 
+  num = amps_Size(amps_CommWorld);
+
   me = amps_Rank(amps_CommWorld);
 
   if (me == source)
@@ -82,11 +81,7 @@ char *argv[];
     {
       result = strcmp(recvd_string, string);
       if (result)
-      {
-	result |= 1;
         amps_Printf("############## ERROR - strings don't match\n");
-      }
-	
 
       if (loop != temp)
       {
@@ -100,10 +95,16 @@ char *argv[];
     amps_Sync(amps_CommWorld);
   }
 
+  if (me != source)
+  {
+    if (result == 0)
+      amps_Printf("Success\n");
+  }
+
   amps_FreeInvoice(invoice);
 
   amps_Finalize();
 
-  return amps_check_result(result);
+  return result;
 }
 

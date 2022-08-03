@@ -45,19 +45,33 @@
 void       Axpy(double alpha, Databox *X, Databox *Y)
 {
   int nx, ny, nz;
+  double x, y, z;
+  double dx, dy, dz;
 
   double         *xp, *yp;
 
-  int m;
+  int m, sx, sy, sz;
+
 
   nx = DataboxNx(X);
   ny = DataboxNy(X);
   nz = DataboxNz(X);
 
+  x = DataboxX(X);
+  y = DataboxY(X);
+  z = DataboxZ(X);
+
+  dx = DataboxDx(X);
+  dy = DataboxDy(X);
+  dz = DataboxDz(X);
+
   xp = DataboxCoeffs(X);
   yp = DataboxCoeffs(Y);
 
   m = 0;
+  sx = 1;
+  sy = nx;
+  sz = ny * nx;
 
   for (m = 0; m < (nx * ny * nz); m++)
   {

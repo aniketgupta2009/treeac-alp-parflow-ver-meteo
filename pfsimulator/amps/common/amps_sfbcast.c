@@ -66,6 +66,7 @@ int amps_SFBCast(amps_Comm comm, amps_File file, amps_Invoice invoice)
 {
   amps_InvoiceEntry *ptr;
   int stride, len;
+  int malloced = 0;
 
   if (!amps_Rank(comm))
   {
@@ -94,21 +95,12 @@ int amps_SFBCast(amps_Comm comm, amps_File file, amps_Invoice invoice)
 
       switch (ptr->type)
       {
-	case AMPS_INVOICE_BYTE_CTYPE:
-          if (ptr->data_type == AMPS_INVOICE_POINTER)
-          {
-            *((void**)(ptr->data)) = (void*)malloc(sizeof(char) * (size_t)(len * stride));
-            amps_ScanByte(file, *( char**)(ptr->data), len, stride);
-          }
-          else
-            amps_ScanByte(file, (char*)ptr->data, len, stride);
-          break;
-
         case AMPS_INVOICE_CHAR_CTYPE:
           if (ptr->data_type == AMPS_INVOICE_POINTER)
           {
             *((void**)(ptr->data)) = (void*)malloc(sizeof(char) * (size_t)(len * stride));
             amps_ScanChar(file, *( char**)(ptr->data), len, stride);
+            malloced = TRUE;
           }
           else
             amps_ScanChar(file, (char*)ptr->data, len, stride);
@@ -119,6 +111,7 @@ int amps_SFBCast(amps_Comm comm, amps_File file, amps_Invoice invoice)
           {
             *((void**)(ptr->data)) = (void*)malloc(sizeof(short) * (size_t)(len * stride));
             amps_ScanShort(file, *( short**)(ptr->data), len, stride);
+            malloced = TRUE;
           }
           else
             amps_ScanShort(file, (short*)ptr->data, len, stride);
@@ -130,6 +123,7 @@ int amps_SFBCast(amps_Comm comm, amps_File file, amps_Invoice invoice)
           {
             *((void**)(ptr->data)) = (void*)malloc(sizeof(int) * (size_t)(len * stride));
             amps_ScanInt(file, *( int**)(ptr->data), len, stride);
+            malloced = TRUE;
           }
           else
             amps_ScanInt(file, (int*)ptr->data, len, stride);
@@ -141,6 +135,7 @@ int amps_SFBCast(amps_Comm comm, amps_File file, amps_Invoice invoice)
           {
             *((void**)(ptr->data)) = (void*)malloc(sizeof(long) * (size_t)(len * stride));
             amps_ScanLong(file, *( long**)(ptr->data), len, stride);
+            malloced = TRUE;
           }
           else
             amps_ScanLong(file, (long*)ptr->data, len, stride);
@@ -152,6 +147,7 @@ int amps_SFBCast(amps_Comm comm, amps_File file, amps_Invoice invoice)
           {
             *((void**)(ptr->data)) = (void*)malloc(sizeof(float) * (size_t)(len * stride));
             amps_ScanFloat(file, *( float**)(ptr->data), len, stride);
+            malloced = TRUE;
           }
           else
             amps_ScanFloat(file, (float*)ptr->data, len, stride);
@@ -163,6 +159,7 @@ int amps_SFBCast(amps_Comm comm, amps_File file, amps_Invoice invoice)
           {
             *((void**)(ptr->data)) = (void*)malloc(sizeof(double) * (size_t)(len * stride));
             amps_ScanDouble(file, *( double**)(ptr->data), len, stride);
+            malloced = TRUE;
           }
           else
             amps_ScanDouble(file, (double*)ptr->data, len, stride);

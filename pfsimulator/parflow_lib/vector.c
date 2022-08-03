@@ -42,12 +42,11 @@
 
 using namespace SAMRAI;
 
-static int samrai_vector_ids[5][2048];
-
 #endif
 
 #include <stdlib.h>
-#include <string.h>
+
+static int samrai_vector_ids[5][2048];
 
 /*--------------------------------------------------------------------------
  * NewVectorCommPkg:
@@ -57,7 +56,7 @@ CommPkg  *NewVectorCommPkg(
                            Vector *    vector,
                            ComputePkg *compute_pkg)
 {
-  CommPkg     *new_commpkg = NULL;
+  CommPkg     *new_commpkg;
 
 
   Grid *grid = VectorGrid(vector);
@@ -170,8 +169,7 @@ VectorUpdateCommHandle  *InitVectorUpdate(
 #endif
   }
 
-  VectorUpdateCommHandle *vector_update_comm_handle = talloc(VectorUpdateCommHandle, 1);
-  memset(vector_update_comm_handle, 0, sizeof(VectorUpdateCommHandle));
+  VectorUpdateCommHandle *vector_update_comm_handle = ctalloc(VectorUpdateCommHandle, 1);
   vector_update_comm_handle->vector = vector;
   vector_update_comm_handle->comm_handle = amps_com_handle;
 
@@ -239,21 +237,18 @@ static Vector  *NewTempVector(
 
   (void)nc;
 
-  new_vector = talloc(Vector, 1);        /* address of storage is assigned to the ptr "new_" of type Vector,
-                                          *   which is also the return value of this function                */
-  memset(new_vector, 0, sizeof(Vector));
+  new_vector = ctalloc(Vector, 1);  /*address of storage is assigned to the ptr "new_" of type Vector, which is also
+                                     *                      the return value of this function */
 
-  (new_vector->subvectors) = talloc(Subvector *, GridNumSubgrids(grid));    /* 1st arg.: variable type;
-                                                                              * 2nd arg.: # of elements to be allocated*/
-  memset(new_vector->subvectors, 0, GridNumSubgrids(grid) * sizeof(Subvector *));
+  (new_vector->subvectors) = ctalloc(Subvector *, GridNumSubgrids(grid));    /* 1st arg.: variable type;
+                                                                              *                                                               2nd arg.: # of elements to be allocated*/
 
   data_size = 0;
 
   VectorDataSpace(new_vector) = NewSubgridArray();
   ForSubgridI(i, GridSubgrids(grid))
   {
-    new_sub = talloc(Subvector, 1);
-    memset(new_sub, 0, sizeof(Subvector));
+    new_sub = ctalloc(Subvector, 1);
 
     subgrid = GridSubgrid(grid, i);
 
@@ -318,7 +313,7 @@ static void     AllocateVectorData(
 
     SubvectorDataSize(subvector) = data_size;
 
-    double  *data = ctalloc_amps(double, data_size);
+    double  *data = amps_CTAlloc(double, data_size);
     VectorSubvector(vector, i)->allocated = TRUE;
 
     SubvectorData(VectorSubvector(vector, i)) = data;
@@ -346,9 +341,9 @@ Vector  *NewVectorType(
 
   new_vector = NewTempVector(grid, nc, num_ghost);
 
-#ifdef HAVE_SAMRAI
   enum ParflowGridType grid_type = invalid_grid_type;
-  
+
+#ifdef HAVE_SAMRAI
   switch (type)
   {
     case vector_cell_centered:
@@ -408,6 +403,7 @@ Vector  *NewVectorType(
   tbox::Pointer < hier::Variable > variable;
 #else
   type = vector_non_samrai;
+  grid_type = invalid_grid_type;
 #endif
 
   new_vector->type = type;
@@ -638,7 +634,7 @@ void FreeSubvector(Subvector *subvector)
 {
   if (subvector->allocated)
   {
-    tfree_amps(SubvectorData(subvector));
+    tfree(SubvectorData(subvector));
   }
   tfree(subvector);
 }
@@ -785,6 +781,8 @@ void    InitVectorAll(
   Subvector  *v_sub;
   double     *vp;
 
+  Subgrid    *subgrid;
+
   int ix_v, iy_v, iz_v;
   int nx_v, ny_v, nz_v;
 
@@ -794,6 +792,8 @@ void    InitVectorAll(
 
   ForSubgridI(i_s, GridSubgrids(grid))
   {
+    subgrid = GridSubgrid(grid, i_s);
+
     v_sub = VectorSubvector(v, i_s);
 
     ix_v = SubvectorIX(v_sub);
@@ -924,11 +924,8 @@ void    InitVectorRandom(
     BoxLoopI1(i, j, k, ix, iy, iz, nx, ny, nz,
               iv, nx_v, ny_v, nz_v, 1, 1, 1,
     {
-#if defined(PARFLOW_HAVE_CUDA) || defined(PARFLOW_HAVE_KOKKOS)
-      vp[iv] = dev_drand48();
-#else
       vp[iv] = drand48();
-#endif
     });
   }
 }
+

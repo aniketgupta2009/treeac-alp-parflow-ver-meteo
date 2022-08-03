@@ -597,9 +597,9 @@ from disk\n"
           	
                   }
 
-    pfgetstats    {
+    pfstats       {
 
-                    puts "Usage      : pfgetstats dataset\n"
+                    puts "Usage      : pfstats dataset\n"
 	            puts "Description: This command prints various statistics for the data set"
                     puts "             represented by the identifier `dataset'.  The minimum,"
                     puts "             maximum, mean, sum, variance, and standard deviation are all"
@@ -635,9 +635,9 @@ from disk\n"
 
                   }
 
-    pfprintdata     {
+    printdata     {
 
-                    puts "Usage      : pfprintdata dataset\n"
+                    puts "Usage      : printdata dataset\n"
                     puts "Description: This command executes `pfgetgrid' and `pfgetelt' in order to"
                     puts "             display all the elements in the data set represented by the"
                     puts "             identifier `dataset'.\n"
@@ -645,9 +645,9 @@ from disk\n"
         
                   }
 
-    pfprintdiff     {
+    printdiff     {
 
-                    puts "Usage      : pfprintdiff datasetp datasetq sig_digs \[abs_zero\]\n"
+                    puts "Usage      : printdiff datasetp datasetq sig_digs \[abs_zero\]\n"
 	            puts "Description: This command executes the commands `pfdiffelt' and `pfmdiff'"
 	            puts "             to print differences to standard output.  The differences are"
                     puts "             printed one per line along with the coordinates where they occur."
@@ -658,9 +658,9 @@ from disk\n"
 
                   }
 
-    pfprintgrid   {
+    printgrid     {
 
-                    puts "Usage      : pfprintgrid dataset\n"
+                    puts "Usage      : printgrid dataset\n"
 	            puts "Description: This command executes pfgetgrid and formats its output"
                     puts "             before printing it on the screen.  The triples (nx, ny, nz),"
                     puts "             (x, y, z), (dx, dy, dz) are all printed on seperate lines"
@@ -669,9 +669,9 @@ from disk\n"
 
                   }
 
-    pfprintlist     {
+    printlist     {
 
-                    puts "Usage      : pfprintlist \[dataset\]\n"
+                    puts "Usage      : printlist \[dataset\]\n"
                     puts "Description: This command executes pflistdata and formats the output of"
                     puts "             that command.  The formatted output is then printed on the"
                     puts "             screen.  The output consists of a list of data sets and their"
@@ -681,9 +681,9 @@ from disk\n"
 
                   }
 
-    pfprintmdiff    {
+    printmdiff    {
 
-                    puts "Usage      : pfprintmdiff datasetp datasetq sig_digs \[abs_zero\]\n"
+                    puts "Usage      : printmdiff datasetp datasetq sig_digs \[abs_zero\]\n"
                     puts "Description: This command executes `pfmdiff' and formats that command's"
                     puts "             output before displaying it on the screen.  Given the search"
                     puts "             criteria, a line displaying the point at which the difference"
@@ -694,10 +694,10 @@ from disk\n"
 
                   }
 
-   pfprintstats    {
+    printstats    {
 
-                    puts "Usage      : pfprintstats dataset\n"
-                    puts "Description: This command executes `pfgetstats' and formats that command's"
+                    puts "Usage      : printstats dataset\n"
+                    puts "Description: This command executes `pfstats' and formats that command's"
                     puts "             output before printing it on the screen.  Each of the values"
                     puts "             that `pfstats' computes will be displayed along with a label"
                     puts "             describing it.\n"
@@ -707,10 +707,10 @@ from disk\n"
 
    all            {
 
-                    puts "Commands: pfaxpy pfcvel pfdelete pfdiffelt pfflux pfprintelt pfgetgrid pfgridtype"
+                    puts "Commands: pfaxpy pfcvel pfdelete pfdiffelt pfflux pfgetelt pfgetgrid pfgridtype"
                     puts "          pfhhead pflistdata pfload pfloadsds pfmdiff pfnewgrid pfnewlabel"
-                    puts "          pfphead pfsavediff pfsave pfsavesds pfstats pfvmag pfvvel pfprintdata"
-                    puts "          pfprintdiff pfprintgrid pfprintlist printmdiff pfprintstats\n"
+                    puts "          pfphead pfsavediff pfsave pfsavesds pfstats pfvmag pfvvel printdata"
+                    puts "          printdiff printgrid printlist printmdiff printstats\n"
                     puts "          Type `pfhelp' followed by a command to obtain detailed descriptions"
                     puts "          of these commands."
 

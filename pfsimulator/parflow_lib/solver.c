@@ -53,7 +53,7 @@ void Solve()
   EndTiming(SolverSetupTimingIndex);
 
   BeginTiming(SolverTimingIndex);
-  PFModuleInvokeType(void (*)(void), solver, ());
+  PFModuleInvoke(void, solver, ());
   EndTiming(SolverTimingIndex);
 
   BeginTiming(SolverCleanupTimingIndex);
@@ -107,6 +107,7 @@ NewSolver()
    * Initialize SAMRAI hierarchy
    *-----------------------------------------------------------------------*/
   // SGS FIXME is this a good place for this?  need UserGrid
+
 #ifdef HAVE_SAMRAI
   // SGS FIXME is this correct for restarts?
   double time = 0.0;

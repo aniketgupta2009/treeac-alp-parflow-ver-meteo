@@ -1,148 +1,87 @@
-# ParFlow Release Notes 3.10.0
------------------------------
+# ParFlow Release Notes
+---
 
-`ParFlow development and bug-fixes would not be possible without
-contributions of the ParFlow community.  Thank you for all the great
-contributions.
+## IMPORTANT NOTE
 
-These release notes cover changes made in 3.10.0.
+```
+Support for GNU Autoconf will be removed in the next release of
+ParFlow.  Future releases will only support configuration using CMake.
+```
 
 ## Overview of Changes
 
-* Python dependency is now 3.6
-* Extend velocity calculations to domain boundary faces and option to output velocity
-* Python PFB reader/writer updated
+* New overland flow boundary conditions
+* Flow barrier added
+* Support for metadata file
+* Boundary condition refactoring
 * Bug fixes
+* Coding style update
 
 ## User Visible Changes
 
-### Extend velocity calculations to domain boundary faces and option to output velocity (Core)
+## New overland flow boundary conditions
 
-Extends the calculation of velocity (Darcy flux) values to the
-exterior boundary faces of the domain. Here are the highlights:
+Three new boundary conditions as modules - OverlandKinematic,
+OverlandDiffusive and Seepage.
 
-Values are calculated for simulations using solver_impes (DirichletBC
-or FluxBC) or solver_richards (all BCs).
+OverlandKinematic is similar to the original OverlandFlow boundary
+condition but uses a slightly modified flux formulation that uses the
+slope magnitude and it is developed to use face centered slopes (as
+opposed to grid centered) and does the upwinding internally.x.  See user
+manual for additional information on the new boundary conditions.
 
-Velocities work with TFG and variable dz options.
+New test cases were added exercising the new boundary conditions:
+overland_slopingslab_DWE.tcl, overland_slopingslab_KWE.tcl,
+overland_tiltedv_DWE.tcl, overland_tiltedV_KWE.tcl,
+Overland_FlatICP.tcl
 
-The saturated velocity flux calculation (phase_velocity_face.c) has
-been added to the accelerated library.
+Two new options were added to the terrain following grid formulation
+to be consistent with the upwinding approach used in the new overland
+flow formulation these are specified with the new
+TFGUpwindFormullation keys documented in the manual.
 
-The description of Solver.PrintVelocities in pf-keys/definitions and
-the manual has been augmented with more information.
+For both OverlandDiffusive and OverlandKinematic analytical jacobians
+were implemented in the new modules and these were tested and can be
+verified in the new test cases noted above.
 
-Velocity has been added as a test criteria to the following tests from
-parflow/test/tcl :
+### Flow barrier added
 
-- default_single.tcl
-- default_richards.tcl
-- default_overland.tcl
-- LW_var_dz.tcl
+Ability to create a flow barrier capability equivalent to the
+hydraulic flow barrier (HFB) or flow and transport parameters at
+interfaces. The flow barriers are placed at the fluxes as scalar
+multipliers between cells (at cell interfaces).
 
-Also fixes incorrect application of FluxBC in saturated pressure
-discretization. Previously, positive fluxes assigned on a boundary
-flowed into the domain, and negative fluxes flowed out of the domain,
-regardless of alignment within the coordinate system. The new method
-allows more intuitive flux assignment where positive fluxes move up a
-coordinate axis and negative fluxes move down a coordinate axis.
+Flow barriers are set using a PFB file, see user manual for additional
+information.  The flow barrier is turned off by default.
 
-### Python version dependency update (Python)
+### Support for metadata file
 
-Python 3.6 or greater is now required for building and running ParFlow
-if Python is being used.
+A metadata file is written in JSON format summarizing the inputs to a
+run and its output files. This file provides ParaView and other
+post-processing tools a simple way to aggregate data for
+visualizations and analyses.
 
-### PFB reader/writer updated (Python)
+Metadata is collected during simulation startup and updated to include
+timestep information with each step the simulation takes.  It is
+rewritten with each timestep so that separate processes may observe
+simulation progress by watching the file for changes.
 
-Add simple and fast pure-python based readers and writers of PFB
-files. This eliminates the need for the external ParflowIO
-dependency. Implemented a new backend for the xarray package that
-let's you open both .pfb files as well as .pfmetadata files directly
-into xarray datastructures. These are very useful for data wrangling
-and scientific analysis
+### Bug Fixes
 
-Basic usage of the new functionality:
+Fixed segmentation fault when unitialized variable was referenced in
+cases with processors is outside of the active domain.
 
-```
-import parflow as pf
+## Internal Changes
 
-# Read a pfb file as numpy array:
-x = pf.read_pfb('/path/to/file.pfb')
+### Boundary condition refactoring
 
-# Read a pfb file as an xarray dataset:
-ds = xr.open_dataset('/path/to/file.pfb', name='example')
+The framework for boundary conditions was significantly refactored to provide a
+macro system to simplify adding new boundary conditions. See
+bc_pressure.h for additional documentation.
 
-# Write a pfb file with distfile:
-pf.write_pfb('/path/to/new_file.pfb', x, 
-             p=p, q=q, r=r, dist=True)
-```
+### Coding style update
 
-### SolidFileBuilder simplification (Python)
-
-Support simple use case in SolidFileBuilder when all work can simply
-be delegated to pfmask-to-pfsol.  Added a generate_asc_files (default
-False) argument to SolidFileBuilder.write.
-
-### Fixed reading of vegm array (Python)
-
-Fixed indices so that the x index of the vegm_array correctly reflects
-the columns and y index reflects the rows. The _read_vegm function in
-PFTools was inconsistent with parflow-python xy indexing.
-
-### Python PFTools version updates (Python)
-
-Updated Python PFTools dependency to current version 3.6.
-
-## Bug Fixes
-
-### Fix errors in LW_Test test case (Examples/Tests)
-
-LW_Test runs successfully and works in parallel.
-
-### Increased input database maximum value size from 4097 to 65536 (Core)
-
-The maximum input database value length was increased from 4097
-to 65536. A bounds check is performed that emits a helpful error
-message when a database value is too big.
-
-### Python interface fixed issue where some keys failed to set when unless set in a particular order (Python)
-
-1) Update some documentation for contributing to pf-keys
-2) Fix a bugs found in pf-keys where some keys failed to set when unless set in a particular order
-3) Add constraint for lists of names
-
-This change lets us express that one list of names should be a subset
-of another list of names Constraint Example
-
-Values for PhaseSources.{phase_name}.GeomNames should be a subset of
-values from either GeomInput.{geom_input_name}.GeomNames or
-GeomInput.{geom_input_name}.GeomName. Setting the domain to EnumDomain
-like so expresses that constraint. A more detailed example can be seen
-in this test case.
-
-## Internal/Developer Changes
-
-### Cleaned up dependencies for Python (Python)
-
-### Diverting ParFlow output to stream (Core)
-
-Added new method for use when ParFlow is embedded in another
-application to control the file stream used for ParFlow logging
-messages. In the embedded case will be disabled by default unless
-redirected by the calling application.
-
-Change required to meet IDEAS Watersheds best practices.
-
-###  Add keys and generator for Simput (Python)
-
-Added keys and generator to allow use Simput and applications based on
-Simput to write inputs for ParFlow with a graphical web interface.
-
-### Remove use of MPI_COMM_WORLD (Core)
-
-Enable use of a communicator other than MPI_COMM_WORLD for more
-general embedding.  Meet IDEAS Watersheds best practices policy.
+The Uncrustify coding style was updated and code was reformated.
 
 ## Known Issues
 
-See https://github.com/parflow/parflow/issues for current bug/issue reports.

@@ -1659,7 +1659,6 @@ void    GrGeomOctreeFromInd(
 
         const int nx_f = SubvectorNX(subvector);
         const int ny_f = SubvectorNY(subvector);
-	const int nz_f = SubvectorNZ(subvector);
 
         data = SubvectorElt(subvector, ix_all, iy_all, iz_all);
 

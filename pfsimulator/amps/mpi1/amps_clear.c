@@ -79,6 +79,7 @@
 void amps_ClearInvoice(amps_Invoice inv)
 {
   amps_InvoiceEntry *ptr;
+  int stride;
 
 
   /* if allocated then we deallocate                                       */
@@ -96,6 +97,11 @@ void amps_ClearInvoice(amps_Invoice inv)
     ptr = inv->list;
     while (ptr != NULL)
     {
+      if (ptr->stride_type == AMPS_INVOICE_POINTER)
+        stride = *(ptr->ptr_stride);
+      else
+        stride = ptr->stride;
+
       /* check if we actually created any space */
       if (ptr->data_type == AMPS_INVOICE_POINTER)
       {

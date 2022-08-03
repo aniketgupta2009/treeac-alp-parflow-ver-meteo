@@ -30,11 +30,8 @@
  * to all the nodes.  The message contains every supported datatype.
  */
 
-#include "amps.h"
-#include "amps_test.h"
-
 #include <stdio.h>
-#include <string.h>
+#include "amps.h"
 
 char *string = "ATestString";
 amps_ThreadLocalDcl(char *, recvd_string);
@@ -75,7 +72,7 @@ int test_results()
 
   if (strcmp(amps_ThreadLocal(recvd_string), string))
   {
-    amps_Printf("ERROR!!!!! chars do not match expected (%s) recvd (%s)\n", string, amps_ThreadLocal(recvd_string));
+    amps_Printf("ERROR!!!!! chars do not match expected (%s) recvd (%s)\n", string[i], amps_ThreadLocal(recvd_string)[i]);
     result |= 1;
   }
   else
@@ -225,7 +222,12 @@ char *argv[];
 
       amps_Recv(amps_CommWorld, num - 1, invoice);
 
-      result |= test_results();
+
+      /* check the result */
+      if ((result = test_results()))
+        amps_Printf("ERROR!!!!!\n");
+      else
+        amps_Printf("Success\n");
     }
     else
     {
@@ -233,11 +235,12 @@ char *argv[];
       amps_Send(amps_CommWorld, (me + 1) % num, invoice);
     }
 
+
     amps_FreeInvoice(invoice);
   }
 
   amps_Finalize();
 
-  return amps_check_result(result);
+  return result;
 }
 

@@ -25,11 +25,13 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  *  USA
  **********************************************************************EHEADER*/
-#include "amps.h"
-#include "amps_test.h"
+/*
+ *
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "amps.h"
 
 int sum(x)
 int x;
@@ -74,6 +76,7 @@ char *argv[];
 
   invoice = amps_NewInvoice("%d", &d_result);
 
+
   for (i = loop; i; i--)
   {
     /* Test the Max function */
@@ -90,6 +93,9 @@ char *argv[];
                   d_result, i_result);
       result = 1;
     }
+    else
+    if (me == 0)
+      amps_Printf("Success\n");
 
     /* Test the Min function */
 
@@ -104,6 +110,9 @@ char *argv[];
                   d_result, i_result);
       result = 1;
     }
+    else
+    if (me == 0)
+      amps_Printf("Success\n");
 
     /* Test the Add function */
 
@@ -120,6 +129,9 @@ char *argv[];
                   d_result, i_result, test);
       result = 1;
     }
+    else
+    if (me == 0)
+      amps_Printf("Success\n");
   }
 
 
@@ -143,6 +155,9 @@ char *argv[];
                   d_result, i_result);
       result = 1;
     }
+    else
+    if (me == 0)
+      amps_Printf("Success\n");
 
     /* Test the Min function */
 
@@ -157,6 +172,9 @@ char *argv[];
                   d_result, i_result);
       result = 1;
     }
+    else
+    if (me == 0)
+      amps_Printf("Success\n");
 
     /* Test the Add function */
 
@@ -173,12 +191,16 @@ char *argv[];
                   d_result, i_result, test);
       result = 1;
     }
+    else
+    if (me == 0)
+      amps_Printf("Success\n");
   }
+
 
   amps_FreeInvoice(invoice);
 
   amps_Finalize();
 
-  return amps_check_result(result);
+  return result;
 }
 

@@ -76,7 +76,4 @@
 // SGS FIXME this should not be here, in fact this whole parflow.h file is dumb.
 #include <math.h>
 
-// backend_mapping.h must be included as the last header
-#include "backend_mapping.h"
-
 #endif

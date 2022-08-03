@@ -28,7 +28,8 @@ and feel free to propose changes to this document in a pull request.
 faster results by using the resources below.  Issues are meant for bug
 reports and feature requests.
 
-The [Parflow-Users](https://groups.google.com/g/parflow) is
+The [ParFlow email
+list](https://mailman.mines.edu/mailman/listinfo/parflow-users) is
 seen by many ParFlow users and developers.  You can also subscribe to
 the email list.  The traffic is minimal and is the platform for
 discussing ParFlow questions.

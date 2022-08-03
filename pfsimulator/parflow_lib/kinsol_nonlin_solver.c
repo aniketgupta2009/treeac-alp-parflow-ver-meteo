@@ -333,7 +333,7 @@ PFModule  *KinsolNonlinSolverInitInstanceXtra(
 
   KINMem kin_mem;
   FILE                  *kinsol_file;
-  char filename[1024];
+  char filename[255];
 
   int i;
 

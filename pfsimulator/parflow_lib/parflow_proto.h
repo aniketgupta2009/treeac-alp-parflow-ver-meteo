@@ -1,4 +1,5 @@
-typedef PFModule * (*NewDefault)(void);
+/* Header.c */
+
 
 typedef void (*AdvectionConcentrationInvoke) (ProblemData *problem_data, int phase, int concentration, Vector *old_concentration, Vector *new_concentration, Vector *x_velocity, Vector *y_velocity, Vector *z_velocity, Vector *solid_mass_factor, double time, double deltat, int order);
 typedef PFModule *(*AdvectionConcentrationInitInstanceXtraType) (Problem *problem, Grid *grid, double *temp_data);
@@ -343,9 +344,6 @@ int KinsolPCSizeOfTempData(void);
 
 
 typedef void (*L2ErrorNormInvoke) (double time, Vector *pressure, ProblemData *problem_data, double *l2_error_norm);
-/* kokkos.cpp */
-void kokkosInit();
-void kokkosFinalize();
 
 /* l2_error_norm.c */
 void L2ErrorNorm(double time, Vector *pressure, ProblemData *problem_data, double *l2_error_norm);
@@ -503,7 +501,6 @@ void PerturbSystem(Lattice *lattice, Problem *problem);
 
 /* pf_module.c */
 PFModule *NewPFModule(void *call, void *init_instance_xtra, void *free_instance_xtra, void *new_public_xtra, void *free_public_xtra, void *sizeof_temp_data, void *instance_xtra, void *public_xtra);
-PFModule *NewPFModuleExtended(void *call, void *init_instance_xtra, void *free_instance_xtra, void *new_public_xtra, void *free_public_xtra, void *sizeof_temp_data,  void *output, void *output_static,void *instance_xtra, void *public_xtra);
 PFModule *DupPFModule(PFModule *pf_module);
 void FreePFModule(PFModule *pf_module);
 
@@ -533,13 +530,7 @@ int PFMGOctreeSizeOfTempData(void);
 
 /* pf_smg.c */
 void SMG(Vector *soln, Vector *rhs, double tol, int zero);
-PFModule  *SMGInitInstanceXtra(
-                               Problem *    problem,
-                               Grid *       grid,
-                               ProblemData *problem_data,
-			       Matrix *     pf_Bmat,
-			       Matrix *     pf_Cmat,
-                               double *     temp_data);
+PFModule *SMGInitInstanceXtra(Problem *problem, Grid *grid, ProblemData *problem_data, Matrix *pf_matrix, double *temp_data);
 void SMGFreeInstanceXtra(void);
 PFModule *SMGNewPublicXtra(char *name);
 void SMGFreePublicXtra(void);
@@ -556,11 +547,11 @@ PFModule *PGSRFNewPublicXtra(char *geom_name);
 void PGSRFFreePublicXtra(void);
 int PGSRFSizeOfTempData(void);
 
-typedef void (*PhaseVelocityFaceInvoke) (Vector *xvel, Vector *yvel, Vector *zvel, ProblemData *problem_data, Vector *pressure, Vector **saturations, int phase, double time);
+typedef void (*PhaseVelocityFaceInvoke) (Vector *xvel, Vector *yvel, Vector *zvel, ProblemData *problem_data, Vector *pressure, Vector **saturations, int phase);
 typedef PFModule *(*PhaseVelocityFaceInitInstanceXtraInvoke) (Problem *problem, Grid *grid, Grid *x_grid, Grid *y_grid, Grid *z_grid, double *temp_data);
 
 /* phase_velocity_face.c */
-void PhaseVelocityFace(Vector *xvel, Vector *yvel, Vector *zvel, ProblemData *problem_data, Vector *pressure, Vector **saturations, int phase, double time);
+void PhaseVelocityFace(Vector *xvel, Vector *yvel, Vector *zvel, ProblemData *problem_data, Vector *pressure, Vector **saturations, int phase);
 PFModule *PhaseVelocityFaceInitInstanceXtra(Problem *problem, Grid *grid, Grid *x_grid, Grid *y_grid, Grid *z_grid, double *temp_data);
 void PhaseVelocityFaceFreeInstanceXtra(void);
 PFModule *PhaseVelocityFaceNewPublicXtra(void);
@@ -912,7 +903,6 @@ int ICPhaseSaturSizeOfTempData(void);
 typedef void (*PhaseDensityInvoke) (int phase, Vector *phase_pressure, Vector *density_v, double *pressure_d, double *density_d, int fcn);
 typedef PFModule *(*PhaseDensityNewPublicXtraInvoke) (int num_phases);
 
-void PhaseDensityConstants(int phase, int fcn, int *phase_type, double *constant, double *ref_den, double *comp_const);
 void PhaseDensity(int phase, Vector *phase_pressure, Vector *density_v, double *pressure_d, double *density_d, int fcn);
 PFModule *PhaseDensityInitInstanceXtra(void);
 void PhaseDensityFreeInstanceXtra(void);
@@ -990,7 +980,6 @@ int RichardsBCInternalSizeOfTempData(void);
 
 typedef void (*SaturationInvoke) (Vector *phase_saturation, Vector *phase_pressure, Vector *phase_density, double gravity, ProblemData *problem_data, int fcn);
 typedef PFModule *(*SaturationInitInstanceXtraInvoke) (Grid *grid, double *temp_data);
-typedef PFModule *(*SaturationOutputStaticInvoke) (char *file_prefix, ProblemData *problem_data);
 
 /* problem_saturation.c */
 void Saturation(Vector *phase_saturation, Vector *phase_pressure, Vector *phase_density, double gravity, ProblemData *problem_data, int fcn);
@@ -999,8 +988,6 @@ void SaturationFreeInstanceXtra(void);
 PFModule *SaturationNewPublicXtra(void);
 void SaturationFreePublicXtra(void);
 int SaturationSizeOfTempData(void);
-void  SaturationOutput(void);
-void  SaturationOutputStatic(char *file_prefix, ProblemData *problem_data);
 
 typedef void (*SaturationConstitutiveInvoke) (Vector **phase_saturations);
 typedef PFModule *(*SaturationConstitutiveInitInstanceXtraInvoke) (Grid *grid);

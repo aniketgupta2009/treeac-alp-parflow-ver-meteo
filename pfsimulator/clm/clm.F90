@@ -3,11 +3,11 @@
 subroutine clm_lsm(pressure,saturation,evap_trans,topo,porosity,pf_dz_mult,istep_pf,dt,time,           &
 start_time,pdx,pdy,pdz,ix,iy,nx,ny,nz,nx_f,ny_f,nz_f,nz_rz,ip,npp,npq,npr,gnx,gny,rank,sw_pf,lw_pf,    &
 prcp_pf,tas_pf,u_pf,v_pf,patm_pf,qatm_pf,lai_pf,sai_pf,z0m_pf,displa_pf,                               &
-slope_x_pf,slope_y_pf,                                                                                 &
 eflx_lh_pf,eflx_lwrad_pf,eflx_sh_pf,eflx_grnd_pf,                                                     &
-qflx_tot_pf,qflx_grnd_pf,qflx_soi_pf,qflx_eveg_pf,qflx_tveg_pf,qflx_in_pf,swe_pf,t_g_pf,               &
+qflx_tot_pf,qflx_grnd_pf,qflx_soi_pf,qflx_eveg_pf,qflx_tveg_pf,qflx_in_pf,swe_pf,snd_pf,snoalb_pf,surfalb_pf,          & !AR
+snowage_pf,ndvi_pf,qflx_snomelt_pf,t_g_pf,                                                            &
 t_soi_pf,clm_dump_interval,clm_1d_out,clm_forc_veg,clm_output_dir,clm_output_dir_length,clm_bin_output_dir,         &
-write_CLM_binary,slope_accounting_CLM,beta_typepf,veg_water_stress_typepf,wilting_pointpf,field_capacitypf,                 &
+write_CLM_binary,beta_typepf,veg_water_stress_typepf,wilting_pointpf,field_capacitypf,                 &
 res_satpf,irr_typepf, irr_cyclepf, irr_ratepf, irr_startpf, irr_stoppf, irr_thresholdpf,               &
 qirr_pf,qirr_inst_pf,irr_flag_pf,irr_thresholdtypepf,soi_z,clm_next,clm_write_logs,                    &
 clm_last_rst,clm_daily_rst, pf_nlevsoi, pf_nlevlak)
@@ -55,7 +55,7 @@ clm_last_rst,clm_daily_rst, pf_nlevsoi, pf_nlevlak)
 
   ! basic indices, counters
   integer  :: t                                   ! tile space counter
-  integer  :: l,ll                                   ! layer counter 
+  integer  :: l                                   ! layer counter 
   integer  :: r,c                                 ! row,column indices
   integer  :: ierr                                ! error output 
 
@@ -98,6 +98,12 @@ clm_last_rst,clm_daily_rst, pf_nlevsoi, pf_nlevlak)
   real(r8) :: qflx_tveg_pf((nx+2)*(ny+2)*3)      ! h2o_flux (veg-t) output var to send to ParFlow, on grid w/ ghost nodes for current proc but nz=1 (2D)
   real(r8) :: qflx_in_pf((nx+2)*(ny+2)*3)        ! h2o_flux (infil) output var to send to ParFlow, on grid w/ ghost nodes for current proc but nz=1 (2D)
   real(r8) :: swe_pf((nx+2)*(ny+2)*3)            ! swe              output var to send to ParFlow, on grid w/ ghost nodes for current proc but nz=1 (2D)
+  real(r8) :: snd_pf((nx+2)*(ny+2)*3)            ! AR : snow depth              output var to send to ParFlow, on grid w/ ghost nodes for current proc but nz=1 (2D)
+  real(r8) :: snoalb_pf((nx+2)*(ny+2)*3)            ! AR : snow albedo             output var to send to ParFlow, on grid w/ ghost nodes for current proc but nz=1 (2D)
+  real(r8) :: surfalb_pf((nx+2)*(ny+2)*3)            ! AR : surface albedo              output var to send to ParFlow, on grid w/ ghost nodes for current proc but nz=1 (2D)
+  real(r8) :: snowage_pf((nx+2)*(ny+2)*3)            ! AR : snow adimensionnal age             output var to send to ParFlow, on grid w/ ghost nodes for current proc but nz=1 (2D)
+  real(r8) :: ndvi_pf((nx+2)*(ny+2)*3)            ! AR : ndvi              output var to send to ParFlow, on grid w/ ghost nodes for current proc but nz=1 (2D)
+  real(r8) :: qflx_snomelt_pf((nx+2)*(ny+2)*3)            ! AR : melt rate             output var to send to ParFlow, on grid w/ ghost nodes for current proc but nz=1 (2D)
   real(r8) :: t_g_pf((nx+2)*(ny+2)*3)            ! t_grnd           output var to send to ParFlow, on grid w/ ghost nodes for current proc but nz=1 (2D)
   real(r8) :: t_soi_pf((nx+2)*(ny+2)*(pf_nlevsoi+2))!tsoil             output var to send to ParFlow, on grid w/ ghost nodes for current proc, but nz=10 (3D)
   real(r8) :: sw_pf((nx+2)*(ny+2)*3)             ! SW rad, passed from PF
@@ -116,17 +122,13 @@ clm_last_rst,clm_daily_rst, pf_nlevsoi, pf_nlevlak)
   real(r8) :: qirr_pf((nx+2)*(ny+2)*3)           ! irrigation applied above ground -- spray or drip (2D)
   real(r8) :: qirr_inst_pf((nx+2)*(ny+2)*(pf_nlevsoi+2))! irrigation applied below ground -- 'instant' (3D)
 
-  real(r8) :: slope_x_pf((nx+2)*(ny+2)*3)        ! Slope in x-direction from PF
-  real(r8) :: slope_y_pf((nx+2)*(ny+2)*3)        ! Slope in y-direction from PF
-
   ! output keys
-  integer :: clm_dump_interval                  ! dump inteval for CLM output, passed from PF, always in interval of CLM timestep, not time
+  real(r8) :: clm_dump_interval                  ! dump inteval for CLM output, passed from PF, always in interval of CLM timestep, not time
   integer  :: clm_1d_out                         ! whether to dump 1d output 0=no, 1=yes
   integer  :: clm_forc_veg                       ! BH: whether vegetation (LAI, SAI, z0m, displa) is being forced 0=no, 1=yes
   integer  :: clm_output_dir_length              ! for output directory
   integer  :: clm_bin_output_dir                 ! output directory
   integer  :: write_CLM_binary                   ! whether to write CLM output as binary 
-  integer  :: slope_accounting_CLM               ! account for slope is solar zenith angle calculations
   character (LEN=clm_output_dir_length) :: clm_output_dir ! output dir location
 
   ! ET keys
@@ -147,7 +149,12 @@ clm_last_rst,clm_daily_rst, pf_nlevsoi, pf_nlevlak)
 
   ! local indices & counters
   integer  :: i,j,k,k1,j1,l1                     ! indices for local looping
-  integer  :: bj,bl                              ! indices for local looping !BH
+  integer  :: bj,bl,bk                           ! indices for local looping !BH
+  real(r8) maxd                                  !max chosen depth for tree root fraction !BH
+  real(r8) mind                                  !min chosen depth for tree root fraction !BH
+  real(r8) maxzi                                 !max depth for tree root fraction !BH
+  real(r8) minzi                                 !min depth for tree root fraction !BH
+
 
   integer  :: j_incr,k_incr                      ! increment for j and k to convert 1D vector to 3D i,j,k array
   integer, allocatable :: counter(:,:) 
@@ -177,7 +184,7 @@ clm_last_rst,clm_daily_rst, pf_nlevsoi, pf_nlevlak)
   drv%dz = pdz
   drv%nc = nx
   drv%nr = ny                   
-  drv%nt = 18                  ! 18 IGBP land cover classes
+  drv%nt = 19                  ! 18 IGBP land cover classes: BH add 1 class
   drv%ts = dt*3600.d0          ! Assume PF in hours, CLM in seconds
   j_incr = nx_f
   k_incr = nx_f*ny_f
@@ -315,7 +322,7 @@ clm_last_rst,clm_daily_rst, pf_nlevsoi, pf_nlevlak)
      !=== Initialize CLM and DIAG variables
      if (clm_write_logs==1) write(999,*) "Initialize CLM and DIAG variables"
      do t=1,drv%nch 
-        clm(t)%kpatch = t
+        clm%kpatch = t
         call drv_clmini (drv, grid, tile(t), clm(t), istep_pf) !Initialize CLM Variables
      enddo
 
@@ -372,7 +379,7 @@ clm_last_rst,clm_daily_rst, pf_nlevsoi, pf_nlevlak)
 
         i = tile(t)%col
         j = tile(t)%row
-
+		
 		!!!! BH: modification of the interfaces depths and layers thicknesses to match PF definitions
 	    clm(t)%zi(0)            = 0.   
     
@@ -392,11 +399,9 @@ clm_last_rst,clm_daily_rst, pf_nlevsoi, pf_nlevlak)
                     l1          = 1+i + j_incr*(j) + k_incr*(clm(t)%topo_mask(1)-(k1-1))
                     total       = total + (drv%dz * pf_dz_mult(l1))
                  enddo
-                 clm(t)%z(k)       = total + (0.5 * drv%dz * pf_dz_mult(l))
-		clm(t)%zi(k)	= total + drv%dz * pf_dz_mult(l)! basile
- 
+                 clm%z(k)       = total + (0.5 * drv%dz * pf_dz_mult(l))
+		clm%zi(k)	= total + drv%dz * pf_dz_mult(l)! basile
               endif
-    
            enddo
 
 
@@ -436,6 +441,22 @@ clm_last_rst,clm_daily_rst, pf_nlevsoi, pf_nlevlak)
            enddo
            clm(t)%rootfr(nlevsoi)=.5*( exp(-tile(t)%roota*clm(t)%zi(nlevsoi-1))&
                                + exp(-tile(t)%rootb*clm(t)%zi(nlevsoi-1)))
+           ! account for vertical root fraction distribution for trees !BH
+           !if (tile(t)%vegt == 7) then
+           !   maxd=3
+           !   do bj = 1, nlevsoi
+           !      if (clm(t)%zi(bj)<=maxd) then
+           !         bk=bj
+           !         maxzi=clm(t)%zi(bj)
+           !      endif
+           !   enddo
+           !   do bj = 1, bk
+           !      clm(t)%rootfr(bj) = clm(t)%dz(bj)/maxzi
+           !   enddo 
+           !   do bj = bk+1, nlevsoi
+           !      clm(t)%rootfr(bj) = 0.0
+           !   enddo
+           !endif
 
            ! reset depth variables assigned by user in clmin file 
            do bl=1,nlevsoi
@@ -454,22 +475,7 @@ clm_last_rst,clm_daily_rst, pf_nlevsoi, pf_nlevlak)
 		   endif ! active/inactive
 
      enddo !t 
-   
-   !! Loop over the tile space to assign slopes
-
-      do t=1,drv%nch
-
-        i=tile(t)%col
-        j=tile(t)%row
-      ll =  (1+i) + (nx+2)*(j) + (nx+2)*(ny+2)
-      if (slope_accounting_CLM==1) then
-      clm(t)%slope_x = slope_x_pf(ll)
-      clm(t)%slope_y = slope_y_pf(ll)
-      else
-      clm(t)%slope_x = 0.0d0
-      clm(t)%slope_y = 0.0d0
-      end if
-      end do ! t
+           
 
      !=== Loop over CLM tile space to set keys/constants from PF
      !    (watsat, residual sat, irrigation keys)
@@ -537,7 +543,7 @@ clm_last_rst,clm_daily_rst, pf_nlevsoi, pf_nlevlak)
   write(9919,*) "CLM day =", drv%da, "month =", drv%mo,"year =", drv%yr
   end if ! CLM log
 
-  
+
   !=== Read in the atmospheric forcing for off-line run
   !    (values no longer read by drv_getforce, passed from PF)
   !    (drv_getforce is modified to convert arrays from PF input to CLM space)
@@ -546,8 +552,7 @@ clm_last_rst,clm_daily_rst, pf_nlevsoi, pf_nlevlak)
   !BH: this replaces values from clm_dynvegpar called previously from drv_clmini and 
   !BH: replaces values from drv_readvegpf
   call drv_getforce(drv,tile,clm,nx,ny,sw_pf,lw_pf,prcp_pf,tas_pf,u_pf,v_pf, &
-  patm_pf,qatm_pf,lai_pf,sai_pf,z0m_pf,displa_pf,istep_pf,clm_forc_veg)
-
+	patm_pf,qatm_pf,lai_pf,sai_pf,z0m_pf,displa_pf,istep_pf,clm_forc_veg)
   !=== Actual time loop
   !    (loop over CLM tile space, call 1D CLM at each point)
   do t = 1, drv%nch     
@@ -568,7 +573,7 @@ clm_last_rst,clm_daily_rst, pf_nlevsoi, pf_nlevlak)
   !=== Call 2D output routine
   !     Only call for clm_dump_interval steps (not time units, integer units)
   !     Only call if write_CLM_binary is True
-  if (mod((istep_pf),clm_dump_interval)==0)  then
+  if (mod(dble(istep_pf),clm_dump_interval)==0)  then
      if (write_CLM_binary==1) then
 
         ! Call subroutine to open (2D-) output files
@@ -582,7 +587,7 @@ clm_last_rst,clm_daily_rst, pf_nlevsoi, pf_nlevlak)
 
      end if ! write_CLM_binary
   end if ! mod of istep and dump_interval
-  
+
 
   !=== Copy values from 2D CLM arrays to PF arrays for printing from PF (as Silo)
   do t=1,drv%nch
@@ -600,7 +605,13 @@ clm_last_rst,clm_daily_rst, pf_nlevsoi, pf_nlevlak)
         qflx_eveg_pf(l)    = clm(t)%qflx_evap_veg 
         qflx_tveg_pf(l)    = clm(t)%qflx_tran_veg
         qflx_in_pf(l)      = clm(t)%qflx_infl 
-        swe_pf(l)          = clm(t)%h2osno 
+        swe_pf(l)          = clm(t)%h2osno
+        snd_pf(l)          = clm(t)%snowdp !AR
+        snoalb_pf(l)          = clm(t)%snoalb !AR
+        surfalb_pf(l)          = clm(t)%surfalb!AR
+        snowage_pf(l)          = clm(t)%snowage !AR
+        ndvi_pf(l)          = clm(t)%ndvi !AR
+        qflx_snomelt_pf(l)          = clm(t)%qflx_snomelt !AR
         t_g_pf(l)          = clm(t)%t_grnd
         qirr_pf(l)         = clm(t)%qflx_qirr
         irr_flag_pf(l)     = clm(t)%irr_flag
@@ -616,6 +627,12 @@ clm_last_rst,clm_daily_rst, pf_nlevsoi, pf_nlevlak)
         qflx_tveg_pf(l)    = -9999.0
         qflx_in_pf(l)      = -9999.0
         swe_pf(l)          = -9999.0
+        snd_pf(l)          = -9999.0 !AR
+        snoalb_pf(l)          = -9999.0 !AR
+        surfalb_pf(l)          = -9999.0 !AR
+        snowage_pf(l)          = -9999.0 !AR
+        ndvi_pf(l)          = -9999.0 !AR
+        qflx_snomelt_pf(l)          = -9999.0 !AR
         t_g_pf(l)          = -9999.0
         qirr_pf(l)         = -9999.0
         irr_flag_pf(l)     = -9999.0

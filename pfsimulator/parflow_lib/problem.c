@@ -253,7 +253,7 @@ Problem   *NewProblem(
   else  /* Richards case */
   {
     ProblemSaturation(problem) =
-      PFModuleNewModuleExtendedType(NewDefault, Saturation, ());
+      PFModuleNewModule(Saturation, ());
   }
 
   /*-----------------------------------------------------------------------

@@ -172,7 +172,7 @@ int           GeomReadSolids(
 {
   GeomSolid  **solids;
 
-  void       **solids_data = NULL;
+  void       **solids_data;
 
   int i, nsolids = 0;
 

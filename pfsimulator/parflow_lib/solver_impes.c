@@ -40,7 +40,6 @@
 
 #include "parflow.h"
 
-#include <string.h>
 
 /*------------------------------------------------------------------------
  * Structures
@@ -283,7 +282,7 @@ void      SolverImpes()
 
   if (public_xtra->write_silo_subsurf_data)
   {
-    strcpy(file_postfix,"");
+    sprintf(file_postfix, "");
     sprintf(file_type, "perm_x");
     WriteSilo(file_prefix, file_type, file_postfix, ProblemDataPermeabilityX(problem_data),
               t, 0, "PermeabilityX");
@@ -714,8 +713,7 @@ void      SolverImpes()
                               problem_data,
                               pressure,
                               saturations,
-                              phase,
-                              t));
+                              phase));
 
           phase_maximum = MaxPhaseFieldValue(phase_x_velocity[phase],
                                              phase_y_velocity[phase],
@@ -1148,30 +1146,30 @@ void      SolverImpes()
               indx++;
             }
           }
+          int is;
 
           /* put call to CRUNCHFLOW here @RMM */
-	  /* int is; */
-	  /* ForSubgridI(is, GridSubgrids(grid)) */
-	  /* { */
-	  /*   double dx, dy, dz; */
-	  /*   int nx, ny, nz, nx_f, ny_f, nz_f, nz_rz, ip, ix, iy, iz; */
-	  /*   int x, y, z; */
-	  
-	  /*   // @RMM - dummy variables for calling CRUNCHFLOW */
-	  /*   nx = SubgridNX(subgrid); */
-	  /*   ny = SubgridNY(subgrid); */
-	  /*   nz = SubgridNZ(subgrid); */
-	  
-	  /*   ix = SubgridIX(subgrid); */
-	  /*   iy = SubgridIY(subgrid); */
-	  /*   iz = SubgridIZ(subgrid); */
-	  
-	  /*   dx = SubgridDX(subgrid); */
-	  /*   dy = SubgridDY(subgrid); */
-	  /*   dz = SubgridDZ(subgrid); */
-	  
-	  /*   CALL_CRUNCHFLOW(); */
-	  /* } */
+          ForSubgridI(is, GridSubgrids(grid))
+          {
+            double dx, dy, dz;
+            int nx, ny, nz, nx_f, ny_f, nz_f, nz_rz, ip, ix, iy, iz;
+            int x, y, z;
+
+            // @RMM - dummy variables for calling CRUNCHFLOW
+            /* nx = SubgridNX(subgrid);
+             * ny = SubgridNY(subgrid);
+             * nz = SubgridNZ(subgrid);
+             *
+             * ix = SubgridIX(subgrid);
+             * iy = SubgridIY(subgrid);
+             * iz = SubgridIZ(subgrid);
+             *
+             * dx = SubgridDX(subgrid);
+             * dy = SubgridDY(subgrid);
+             * dz = SubgridDZ(subgrid);
+             *
+             * CALL_CRUNCHFLOW() */
+          }
         }
 
         /* Print the concentration values at this time-step? */
@@ -1264,7 +1262,7 @@ void      SolverImpes()
 
       if (public_xtra->write_silo_press)
       {
-	strcpy(file_postfix, "");
+        sprintf(file_postfix, "");
         sprintf(file_type, "press");
         WriteSilo(file_prefix, file_type, file_postfix, pressure,
                   t, file_number, "Pressure");

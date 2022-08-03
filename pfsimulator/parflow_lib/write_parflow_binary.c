@@ -49,7 +49,6 @@ long SizeofPFBinarySubvector(
 
   int nx_v = SubvectorNX(subvector);
   int ny_v = SubvectorNY(subvector);
-  int nz_v = SubvectorNZ(subvector);
 
   int i, j, k, ai;
 
@@ -84,7 +83,6 @@ void       WritePFBinary_Subvector(
 
   int nx_v = SubvectorNX(subvector);
   int ny_v = SubvectorNY(subvector);
-  int nz_v = SubvectorNZ(subvector);
 
   int i, j, k, ai;
   double         *data;
@@ -128,7 +126,7 @@ void     WritePFBinary(
   Subvector      *subvector;
 
   int g;
-  int p;
+  int p, P;
 
   long size;
 
@@ -139,6 +137,7 @@ void     WritePFBinary(
   BeginTiming(PFBTimingIndex);
 
   p = amps_Rank(amps_CommWorld);
+  P = amps_Size(amps_CommWorld);
 
   if (p == 0)
     size = 6 * amps_SizeofDouble + 4 * amps_SizeofInt;
@@ -179,9 +178,15 @@ void     WritePFBinary(
     amps_WriteDouble(file, &BackgroundY(GlobalsBackground), 1);
     amps_WriteDouble(file, &BackgroundZ(GlobalsBackground), 1);
 
+#if 0
+    amps_WriteInt(file, &BackgroundNX(GlobalsBackground), 1);
+    amps_WriteInt(file, &BackgroundNY(GlobalsBackground), 1);
+    amps_WriteInt(file, &BackgroundNZ(GlobalsBackground), 1);
+#else
     amps_WriteInt(file, &SubgridNX(GridBackground(grid)), 1);
     amps_WriteInt(file, &SubgridNY(GridBackground(grid)), 1);
     amps_WriteInt(file, &SubgridNZ(GridBackground(grid)), 1);
+#endif
 
     amps_WriteDouble(file, &BackgroundDX(GlobalsBackground), 1);
     amps_WriteDouble(file, &BackgroundDY(GlobalsBackground), 1);
@@ -218,7 +223,6 @@ long SizeofPFSBinarySubvector(
 
   int nx_v = SubvectorNX(subvector);
   int ny_v = SubvectorNY(subvector);
-  int nz_v = SubvectorNZ(subvector);
 
   int i, j, k, ai, n;
   double         *data;
@@ -262,7 +266,6 @@ void       WritePFSBinary_Subvector(
 
   int nx_v = SubvectorNX(subvector);
   int ny_v = SubvectorNY(subvector);
-  int nz_v = SubvectorNZ(subvector);
 
   int i, j, k, ai, n;
   double         *data;

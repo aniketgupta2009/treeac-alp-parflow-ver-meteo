@@ -158,7 +158,7 @@ void     SatGodunov(
     nx_zv, ny_zv, nz_zv;
 
   int i, j, k, si, wi, xi, yi, zi;
-  int index, flopest;
+  int nx_cells, ny_cells, nz_cells, index, flopest;
   int cycle_number, interval_number;
 
   double           *s, *sn;
@@ -169,7 +169,8 @@ void     SatGodunov(
 
   int lohi[6], dlohi[6];
   double hx[3];
-  double dt;
+  double dt, t;
+  int fstord;
   double cell_volume, field_sum, cell_change, well_stat;
   double well_value, input_s, volume, flux;
 
@@ -194,12 +195,27 @@ void     SatGodunov(
    *-----------------------------------------------------------------------*/
 
   dt = deltat;
+  t = time;
+
+  if (order == 1)
+  {
+    fstord = TRUE;
+  }
+  else
+  {
+    fstord = FALSE;
+  }
 
   subgrids = GridSubgrids(grid);
+
 
   /*-----------------------------------------------------------------------
    * Advect on all the subgrids
    *-----------------------------------------------------------------------*/
+
+  nx_cells = IndexSpaceNX(0) - 3;
+  ny_cells = IndexSpaceNY(0) - 3;
+  nz_cells = IndexSpaceNZ(0) - 3;
 
   flopest = 0;
 
@@ -276,6 +292,7 @@ void     SatGodunov(
   }
 
   IncFLOPCount(flopest);
+
 
   /*-----------------------------------------------------------------------
    * Set up source terms, right hand side and scaling term

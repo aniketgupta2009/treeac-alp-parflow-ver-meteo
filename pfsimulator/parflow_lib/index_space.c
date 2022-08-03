@@ -97,16 +97,8 @@ BoxArray* NewBoxArray(BoxList *box_list)
     BoxListElement* element = box_list->head;
     while (element)
     {
-      BoxCopy(&(box_array->boxes[i]), &(element->box));
-      for (int dim = 0; dim < DIM; dim++)
-      {
-        if(i == 0 || box_array->boxlimits[dim] > box_array->boxes[i].lo[dim])
-          box_array->boxlimits[dim] = box_array->boxes[i].lo[dim];
-        if(i == 0 || box_array->boxlimits[DIM + dim] < box_array->boxes[i].up[dim])
-          box_array->boxlimits[DIM + dim] = box_array->boxes[i].up[dim];
-      }
+      BoxCopy(&(box_array->boxes[i++]), &(element->box));
       element = element->next;
-      i++;
     }
   }
 

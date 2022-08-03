@@ -27,10 +27,10 @@ subroutine clm_snowalb (clm, coszen, nband, ind, alb)
 
   integer  :: ib           !waveband class
 
-  real(r8) :: snal0 = 0.95 !vis albedo of new snow for sza<60
-  real(r8) :: snal1 = 0.65 !nir albedo of new snow for sza<60
-  real(r8) :: conn  = 0.5  !constant for visible snow alb calculation [-]
-  real(r8) :: cons  = 0.2  !constant (=0.2) for nir snow albedo calculation [-]
+  real(r8) :: snal0 = 0.95 !vis albedo of new snow for sza<60	!AG 0.95
+  real(r8) :: snal1 = 0.65 !nir albedo of new snow for sza<60 !AG 0.65
+  real(r8) :: conn  = 0.5  !constant for visible snow alb calculation [-]	!AG 0.5
+  real(r8) :: cons  = 0.2  !constant (=0.2) for nir snow albedo calculation [-] !AG 0.2
   real(r8) :: sl    = 2.0  !factor that helps control alb zenith dependence [-]
 
   real(r8) :: age          !factor to reduce visible snow alb due to snow age [-]
@@ -54,7 +54,7 @@ subroutine clm_snowalb (clm, coszen, nband, ind, alb)
 ! =========================================================================
 
 ! Correction for snow age
-
+  
   age = 1.-1./(1.+clm%snowage)
   albs = snal0*(1.-cons*age)
   albl = snal1*(1.-conn*age)
@@ -76,6 +76,7 @@ subroutine clm_snowalb (clm, coszen, nband, ind, alb)
   alb(2) = albl
 
   return
+
 end subroutine clm_snowalb
 
 

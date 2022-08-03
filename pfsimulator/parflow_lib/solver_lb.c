@@ -189,7 +189,7 @@ void      SolverDiffusion()
   VectorUpdateCommHandle   *handle;
 
   char dt_info;
-  char file_prefix[PATH_MAX], file_postfix[64];
+  char file_prefix[64], file_postfix[64];
 
   double       *time_log = NULL, *dt_log = NULL;
   int          *seq_log = NULL, *dumped_log = NULL;
@@ -748,8 +748,7 @@ void      SolverDiffusion()
                               problem_data,
                               pressure,
                               saturations,
-                              phase,
-                              t));
+                              phase));
 
           phase_maximum = MaxPhaseFieldValue(phase_x_velocity[phase],
                                              phase_y_velocity[phase],

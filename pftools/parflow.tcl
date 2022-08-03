@@ -29,7 +29,7 @@
 package provide parflow 1.0
 
 namespace eval Parflow {
-    variable PFDB
+    variable PFDB 
     array set PFDB {FileVersion -1}
 
     variable IsArchUnix
@@ -44,7 +44,7 @@ namespace eval Parflow {
 
     #
     # Fix up filenames for Win32
-    #
+    # 
     proc FixupFilename { filename } {
 
 	if $Parflow::IsArchUnix {
@@ -52,20 +52,20 @@ namespace eval Parflow {
 	} {
 	    regsub -all \\\\ $filename "/" new_filename
 	}
-
+    
 	return $new_filename
     }
 
     variable PARFLOW_DIR [Parflow::FixupFilename $::env(PARFLOW_DIR)]
-
+    
     namespace export pfget pfset pfrun pfundist
 
     namespace export pfStructuredPoints
 
-    #
+    # 
     # Export names from the shared library
     #
-    namespace export pfloadsds
+    namespace export pfloadsds 
     namespace export pfsavesds
     namespace export pfbfcvel
     namespace export pfgetsubbox
@@ -76,8 +76,6 @@ namespace eval Parflow {
     namespace export pfdist
     namespace export pfsave
     namespace export pfvtksave
-    namespace export pfpatchysolid
-    namespace export pfsolidfmtconvert
     namespace export pfgetelt
     namespace export pfgridtype
     namespace export pfgetgrid
@@ -143,7 +141,7 @@ namespace eval Parflow {
     namespace export pfflintslaw
     namespace export pfflintslawfit
     namespace export pfflintslawbybasin
-
+ 
     namespace export pfprintdata
     namespace export pfprintdiff
     namespace export pfprintlist
@@ -165,7 +163,7 @@ proc Parflow::PFWriteComplexString {file string} {
 #
 # Write an array from a file
 #
-proc Parflow::PFWriteArray {file name} {
+proc Parflow::PFWriteArray {file name} { 
     upvar $name a
 
     puts $file [array size a]
@@ -185,7 +183,7 @@ proc Parflow::pfwritedb {name} {
     #
 
     set file [open [FixupFilename $name.pfidb] "w"]
-
+    
     foreach i "Parflow::PFDB" {
 	PFWriteArray $file $i
     }
@@ -198,7 +196,7 @@ proc Parflow::pfwritedb {name} {
 # Sets a value in the database
 #
 proc Parflow::pfset { key value } {
-
+    
     set Parflow::PFDB($key) "$value"
 }
 
@@ -248,8 +246,8 @@ proc Parflow::pfrun { runname args } {
 
     #
     # Write out the current state of the database
-    #
-
+    # 
+    
     pfwritedb $runname
 
     if [pfexists Process.Topology.P] {
@@ -269,7 +267,7 @@ proc Parflow::pfrun { runname args } {
     } {
 	set R 1
     }
-
+    
     set NumProcs [expr $P * $Q * $R]
 
     # Run parflow
@@ -300,7 +298,7 @@ proc Parflow::pfundist { runname } {
 
     if [file exists $runname.00000] {
 	set files [lsort [glob -nocomplain $runname.\[0-9\]*]]
-
+	
 	file delete $runname
 	eval exec /bin/cat $files > $runname
 	eval file delete $files
@@ -319,8 +317,7 @@ proc Parflow::pfundist { runname } {
 	append filelist [glob -nocomplain $root.perm_y.*$postfix] " "
 	append filelist [glob -nocomplain $root.perm_z.*$postfix] " "
 	append filelist [glob -nocomplain $root.porosity.*$postfix] " "
-        append filelist [glob -nocomplain $root.specific_storage.*$postfix] " "
-
+    
 	append filelist [glob -nocomplain $root.press.*$postfix] " "
 	append filelist [glob -nocomplain $root.density.?????.*$postfix] " "
 	append filelist [glob -nocomplain $root.satur.?????.*$postfix] " "
@@ -335,10 +332,29 @@ proc Parflow::pfundist { runname } {
 	append filelist [glob -nocomplain $root.obf.?????.*$postfix] " "
 	append filelist [glob -nocomplain $root.mask.?????.*$postfix] " "
 	append filelist [glob -nocomplain $root.mask.*$postfix] " "
+	append filelist [glob -nocomplain $root.evaptranssum.?????.*$postfix] " "
+	append filelist [glob -nocomplain $root.evaptrans.?????.*$postfix] " "
+	append filelist [glob -nocomplain $root.overlandsum.?????.*$postfix] " "
+	append filelist [glob -nocomplain $root.slope_x.*$postfix] " "
+	append filelist [glob -nocomplain $root.slope_y.*$postfix] " "
+	append filelist [glob -nocomplain $root.specific_storage.*$postfix] " "	
+	append filelist [glob -nocomplain $root.dz_mult.*$postfix] " "		
 
-	append filelist [glob -nocomplain $root.velx.*$postfix] " "
-	append filelist [glob -nocomplain $root.vely.*$postfix] " "
-	append filelist [glob -nocomplain $root.velz.*$postfix] " "
+	append filelist [glob -nocomplain $root.qflx_evap_grnd.*$postfix] " "
+	append filelist [glob -nocomplain $root.qflx_evap_soi.*$postfix] " "
+	append filelist [glob -nocomplain $root.qflx_evap_tot.*$postfix] " "
+	append filelist [glob -nocomplain $root.qflx_evap_veg.*$postfix] " "
+	append filelist [glob -nocomplain $root.qflx_infl.*$postfix] " "
+	append filelist [glob -nocomplain $root.qflx_tran_veg.*$postfix] " "
+	append filelist [glob -nocomplain $root.swe_out.*$postfix] " "
+	append filelist [glob -nocomplain $root.t_grnd.*$postfix] " "
+	append filelist [glob -nocomplain $root.t_soil.*$postfix] " "
+	append filelist [glob -nocomplain $root.diag_out.*$postfix] " "
+	append filelist [glob -nocomplain $root.eflx_lh_tot.*$postfix] " "
+	append filelist [glob -nocomplain $root.eflx_lwrad_out.*$postfix] " "
+	append filelist [glob -nocomplain $root.eflx_sh_tot.*$postfix] " "
+	append filelist [glob -nocomplain $root.eflx_soil_grnd.*$postfix] " "
+	append filelist [glob -nocomplain $root.clm_output.*$postfix] " "
     }
 
     foreach i $filelist {
@@ -370,3 +386,4 @@ proc Parflow::pfreloadall {} {
 	}
     }
 }
+

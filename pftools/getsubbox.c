@@ -57,7 +57,7 @@ Databox       *CompSubBox(
 {
   Databox       *sub_fun;
 
-  int nx, ny;
+  int nx, ny, nz;
   double x, y, z;
   double dx, dy, dz;
 
@@ -74,6 +74,7 @@ Databox       *CompSubBox(
 
   nx = DataboxNx(fun);
   ny = DataboxNy(fun);
+  nz = DataboxNz(fun);
 
   x = DataboxX(fun);
   y = DataboxY(fun);

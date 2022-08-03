@@ -38,15 +38,6 @@ void amps_vector_in(amps_Comm comm, int type, char **data, char **buf_ptr, int d
   {
     switch (type)
     {
-      case AMPS_INVOICE_BYTE_CTYPE:
-        *buf_ptr += AMPS_CALL_BYTE_ALIGN(comm, NULL, *buf_ptr, len[dim],
-                                         stride[dim]);
-        AMPS_CALL_BYTE_IN(comm, *buf_ptr, *data, len[dim], stride[dim]);
-        *buf_ptr += AMPS_CALL_BYTE_SIZEOF(comm, *buf_ptr, NULL, len[dim],
-                                          stride[dim]);
-        *(char**)data += (len[dim] - 1) * stride[dim];
-        break;
-
       case AMPS_INVOICE_CHAR_CTYPE:
         *buf_ptr += AMPS_CALL_CHAR_ALIGN(comm, NULL, *buf_ptr, len[dim],
                                          stride[dim]);
@@ -100,10 +91,6 @@ void amps_vector_in(amps_Comm comm, int type, char **data, char **buf_ptr, int d
 
       switch (type)
       {
-	case AMPS_INVOICE_BYTE_CTYPE:
-          *(char**)data += stride[dim];
-          break;
-
         case AMPS_INVOICE_CHAR_CTYPE:
           *(char**)data += stride[dim];
           break;
@@ -147,11 +134,6 @@ int amps_vector_align(amps_Comm comm, int type, char **data, char **buf_ptr, int
 
   switch (type)
   {
-    case AMPS_INVOICE_BYTE_CTYPE:
-      align = AMPS_CALL_BYTE_ALIGN(comm, NULL, *buf_ptr, len[0],
-                                   stride[0]);
-      break;
-    
     case AMPS_INVOICE_CHAR_CTYPE:
       align = AMPS_CALL_CHAR_ALIGN(comm, NULL, *buf_ptr, len[0],
                                    stride[0]);
@@ -197,10 +179,6 @@ int amps_vector_sizeof_buffer(amps_Comm comm, int type, char **data, char **buf_
 
   switch (type)
   {
-    case AMPS_INVOICE_BYTE_CTYPE:
-      size = AMPS_CALL_BYTE_SIZEOF(comm, *buf_ptr, NULL, len[0], 1);
-      break;
-
     case AMPS_INVOICE_CHAR_CTYPE:
       size = AMPS_CALL_CHAR_SIZEOF(comm, *buf_ptr, NULL, len[0], 1);
       break;
@@ -246,12 +224,6 @@ int amps_vector_sizeof_local(amps_Comm comm, int type, char **data, char **buf_p
 
   switch (type)
   {
-    case AMPS_INVOICE_BYTE_CTYPE:
-      size = AMPS_CALL_BYTE_SIZEOF(comm, *buf_ptr, NULL, len[0],
-                                   stride[0]);
-      el_size = sizeof(char);
-      break;
-    
     case AMPS_INVOICE_CHAR_CTYPE:
       size = AMPS_CALL_CHAR_SIZEOF(comm, *buf_ptr, NULL, len[0],
                                    stride[0]);

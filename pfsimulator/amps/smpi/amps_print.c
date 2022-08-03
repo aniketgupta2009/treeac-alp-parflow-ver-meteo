@@ -61,7 +61,7 @@
  * @return void
  */
 
-void amps_Printf(const char *fmt, ...)
+void amps_Printf(char *fmt, ...)
 {
   va_list argp;
 

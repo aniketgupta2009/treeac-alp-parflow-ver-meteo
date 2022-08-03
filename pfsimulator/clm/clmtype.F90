@@ -58,6 +58,7 @@ module clmtype
      real(r8) :: zlnd      ! Roughness length for soil [m]
      real(r8) :: zsno      ! Roughness length for snow [m]
      real(r8) :: csoilc    ! Drag coefficient for soil under canopy [-]
+     real(r8) :: csoilcn    ! BH added to account for JMC modif in clmleaf_tem
 
 ! Hydraulic constants of soil (read into 2-D grid module variables)
 
@@ -192,9 +193,6 @@ module clmtype
      real(r8) :: fsa            ! solar radiation absorbed (total) (W/m**2)
      real(r8) :: fsr            ! solar radiation reflected (W/m**2)
      real(r8) :: ndvi           ! Normalized Difference Vegetation Index (diagnostic)
-
-     real(r8) :: slope_x        ! Slope in x-direction from PF
-     real(r8) :: slope_y        ! Slope in y-direction from PF
 
 ! surfacealbedo 
 

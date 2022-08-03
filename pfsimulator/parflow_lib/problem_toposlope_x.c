@@ -123,6 +123,7 @@ void         XSlope(
       int num_regions;
       int     *region_indices;
       double  *values;
+      double x, y, z;
       double value;
       int ir;
 
@@ -172,7 +173,7 @@ void         XSlope(
           GrGeomInLoop(i, j, k, gr_solid, r, ix, iy, iz, nx, ny, nz,
           {
             ips = SubvectorEltIndex(ps_sub, i, j, 0);
-            //x = RealSpaceX(i, SubgridRX(subgrid));
+            x = RealSpaceX(i, SubgridRX(subgrid));
             //data[ips] = sin(x)/8.0 + (1/8)*pow(x,-(7/8)) +sin(x/5.0)/(5.0*8.0);
             data[ips] = value;
           });

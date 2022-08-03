@@ -31,10 +31,8 @@
  *
  */
 
-#include "amps.h"
-#include "amps_test.h"
-
 #include <stdio.h>
+#include "amps.h"
 
 #define v1_len 5
 #define v2_len 4
@@ -48,6 +46,7 @@ int argc;
 char *argv[];
 {
   amps_Invoice invoice;
+  amps_Invoice send_invoice;
 
   int dim = 3;
   int len_array[] = { v1_len, v2_len, v3_len };
@@ -66,6 +65,9 @@ char *argv[];
   int index;
   int c;
 
+  char *recvd_string = NULL;
+  int length;
+
   int result = 0;
 
   if (amps_Init(&argc, &argv))
@@ -75,6 +77,7 @@ char *argv[];
   }
 
   loop = atoi(argv[1]);
+
 
   total_length = ((v1_len - 1) * v1_stride + 1) * v2_len + (v2_stride - 1) * (v2_len - 1);
   total_length = total_length * v3_len + (v2_stride - 1) * (v3_len - 1);
@@ -137,6 +140,17 @@ char *argv[];
     for (c = 0; c < total_length; c++)
       if (vector[c])
         result = 1;
+
+    if (result)
+    {
+      amps_Printf("ERROR!!!!! vectors do not match\n");
+      result = 1;
+    }
+    else
+    {
+      amps_Printf("Success\n");
+      result = 0;
+    }
   }
   free(vector);
 
@@ -144,6 +158,6 @@ char *argv[];
 
   amps_Finalize();
 
-  return amps_check_result(result);
+  return result;
 }
 
